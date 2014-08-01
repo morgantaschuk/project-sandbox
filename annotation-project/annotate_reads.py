@@ -1,12 +1,13 @@
 #!/usr/bin/python
+from __future__ import print_function
 
 import sys,getopt,time
 from subprocess import call
 import csv,zipfile,re
 
 def usage(long_opts):
-   print 'annotate_reads.py',"[","--"+" --".join(long_opts).replace("="," <val>"),"]"
-   print '   use -h to print this message'
+   print('annotate_reads.py',"[","--"+" --".join(long_opts).replace("="," <val>"),"]")
+   print('   use -h to print this message')
 
 def open_fastqc(fastqc_zip,match_strings):
    """ 
@@ -33,11 +34,12 @@ def open_fastqc(fastqc_zip,match_strings):
                   if match:
                      annotations[match.group(1)]=match.group(2).rstrip()
    except zipfile.BadZipfile as e:
-      print " : ".join([time.strftime("%x %X"), "ERROR: BadZipfile", str(e), fastqc_zip])
+      print(" : ".join([time.strftime("%x %X"), "ERROR: BadZipfile", str(e), fastqc_zip]),file=sys.stderr)
    return annotations
 
 def main(argv):
    reportarg = []
+   title="annot"
    test=False
    long_opts=["test","study-name=","root-sample-name=","sample-name=","sequencer-run-name=","ius-SWID=","lane-SWID="]
    try:
@@ -54,12 +56,13 @@ def main(argv):
       else:
          reportarg.append(opt)
 	 reportarg.append(arg)
+         title="_".join([title,arg])
    #generate the report
    mycall = ["seqware", "files", "report", "--out", "tmp.tsv"];
    mycall.extend(reportarg)
    call(mycall)
-
-   anno_file = open("annotations.csv",'w')
+   title = title.replace(" ","_")+".sh"
+   anno_file = open(title,'w')
 
    #The strings to match for the FastQC reports
    match_strings=["^(Encoding)[\s]*(.*)","^(Total Sequences)[\s]*(.*)","^(Sequence length)[\s]*(.*)","^(%GC)[\s]*(.*)"]
@@ -76,15 +79,19 @@ def main(argv):
 	 #annotate the file with information pulled out of the FastQC report
          if annos is not None:
             for key in annos.keys():
-               s = ",".join([line['File SWID'], key.replace(" ", "_"), annos[key].replace(" ", "_").replace("_/_","/"),"\n"])
-               anno_file.write(s);
+               #s = ",".join([line['File SWID'], key.replace(" ", "_"), annos[key].replace(" ", "_").replace("_/_","/"),"\n"])
+               mycall = ["seqware", "annotate", "file", 
+				"--accession", line['File SWID'], 
+				"--key", key.replace(" ", "_"), 
+				"--val", annos[key].replace(" ", "_").replace("_/_","/"),"\n"]
+               anno_file.write(" ".join(mycall));
             
    anno_file.close()
-   mycall = ["seqware", "annotate", "file", "--csv", "annotations.csv"] 
+   mycall = ["qsub", "-l", "h_vmem=8G", "-N", title,"-cwd", "-b", "y", '"bash '+title+'"']
    if not test:
       call(mycall)
    else:
-      print "Test mode enabled:",str(mycall)
+      print("Test mode enabled:",str(mycall))
 
 
 if __name__ == "__main__":
