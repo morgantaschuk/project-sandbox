@@ -6,7 +6,7 @@ from subprocess import call
 import csv,zipfile,re
 
 def usage(long_opts):
-   print('annotate_reads.py',"[","--"+" --".join(long_opts).replace("="," <val>"),"]")
+   print('annotate_fastqc.py',"[","--"+" --".join(long_opts).replace("="," <val>"),"]")
    print('   use -h to print this message')
 
 def open_fastqc(fastqc_zip,match_strings):
@@ -91,7 +91,7 @@ def main(argv):
    if not test:
       call(mycall)
    else:
-      print("Test mode enabled:",str(mycall))
+      print(" ".join(mycall))
 
 
 if __name__ == "__main__":
