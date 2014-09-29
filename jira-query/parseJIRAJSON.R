@@ -1,3 +1,5 @@
+#Authors: Morgan Taschuk, Jochen Weile was very very helpful. 
+
 #The command line arguments should be the title of the graph/pdf followed by a list of filenames for parsing
 args <-commandArgs(trailingOnly=TRUE)
 print(args)
@@ -12,15 +14,17 @@ restargs=args[2:length(args)]
 durations<-lapply(restargs, function(arg) {
 	json_file<-arg
 	json_data<-fromJSON(file=json_file)
-
 	#for each issue in the JSON file, calculate the duration
-	issues<-lapply(json_data$issues, function(issue) {
-		if( is.null(issue$fields$resolutiondate)) { resolutiondate=Sys.Date() }
-		else {resolutiondate=as.Date(issue$fields$resolutiondate)}
-		duration=strtoi(resolutiondate-as.Date(issue$fields$created))
-		return(duration)
-	})
-	return(issues)
+	durations <- do.call(c,lapply(json_data$issues, function(issue) {
+		resolutiondate <- if (is.null(issue$fields$resolutiondate)) 
+			Sys.Date() 
+		else 
+			as.Date(issue$fields$resolutiondate)
+		strtoi(resolutiondate-as.Date(issue$fields$created))
+	}))
+	#replace all null elements in the list with NA
+	durations[is.null(durations)] <- NA
+	durations
 })
 
 
