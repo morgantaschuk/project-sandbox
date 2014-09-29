@@ -30,8 +30,21 @@ issues<-sapply(json_data$issues, function(issue) {
 #)
 return(issues)
 })
-png(filename=paste(title,".png",sep=""))
-boxplot(ylab="days", durations, names=restargs)
+pdf(file=paste(title,".pdf",sep=""))
+par(mai=c(2,1,1,1))
+beeswarm(durations, col=rainbow(12),main=title, xaxt='n', yaxt='n')
+boxplot(durations,   ylab="days", las = 2, add=TRUE,names=restargs)#,ylim=c(0,365))
 
-beeswarm(durations, add=TRUE, col=rainbow(8) )
+
+#dev.off()
+
+
+
+medians<-sapply(durations, function(duration) {
+
+	median=median(duration)
+})
+
+#pdf(file=paste(title,"-median.pdf",sep=""))
+barplot(medians, names=restargs, ylab="median days", las = 2, col=rainbow(12), main=title)#,ylim=c(0,250) )
 dev.off()
