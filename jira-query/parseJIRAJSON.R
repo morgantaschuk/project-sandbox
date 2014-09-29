@@ -27,6 +27,10 @@ durations<-lapply(restargs, function(arg) {
 	durations
 })
 
+counts<-lapply(durations, function(dur) {
+	length(!is.na(dur))
+})
+
 
 ####Create the diagrams
 library("beeswarm")
@@ -38,6 +42,9 @@ par(mai=c(2,1,1,1))
 #plot the beeswarm under the boxplot
 beeswarm(durations, col=rainbow(12),main=title, xaxt='n', yaxt='n')
 boxplot(durations,   ylab="days", las = 2, add=TRUE,names=restargs)#,ylim=c(0,365))
+#put the sample size on each bar
+columns<-length(restargs)
+text(seq(1, columns, by=1),  y=rep(-30, times=columns), labels = counts)
 
 #calculate the median for each set of issues
 medians<-sapply(durations, function(duration) {

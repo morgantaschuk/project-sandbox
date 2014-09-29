@@ -1,3 +1,3 @@
 Run the test with the following:
 
-Rscript parseJIRAJSON.R TicketsClosedLast30days mtaschuk-30 fqureshi-30
+Rscript parseJIRAJSON.R TicketsClosedLast30days full.json empty.json
