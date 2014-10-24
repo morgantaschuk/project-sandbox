@@ -142,10 +142,10 @@ timeline.hog<-aggregate(hogginess ~ jobnames, timeline,sum)
 timeline.max<-aggregate(enddates ~ jobnames, timeline,max)
 
 sizes<-merge(timeline.hog,timeline.max)
-#ggplot(timeline, aes(colour=statuses, y=enddates, ymin=startdates, ymax=enddates, x=reorder(jobnames,ids), group=row.names(timeline))) + geom_linerange(position=position_dodge(0.5), size=1) + coord_flip()+geom_text(aes(label=labels,hjust=0,vjust=0), position=position_dodge(0.5))+geom_point(data=sizes,aes(x=jobnames, y=enddates,size=hogginess,group=row.names(sizes),fill="#000000"))
-
-
-
+pdf("hogginess.pdf")
+ggplot(sizes, aes(x=enddates,y=reorder(jobnames,enddates)))+geom_point(aes(size=hogginess)) + labs(title="Sum of hogginess (wasted MB) by job name")
+ggplot(sizes, aes(x=reorder(jobnames,hogginess),y=hogginess))+geom_bar(stat="identity")+coord_flip()+labs(title="Sum of hogginess (wasted MB) by job name")
+dev.off()
 
 
 
