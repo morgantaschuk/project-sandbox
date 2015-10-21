@@ -1,4 +1,4 @@
-Ultimate drunken-archer
+FUltimate drunken-archer
 ==============
 
 Sandbox for personal development projects
