@@ -1,45 +1,30 @@
 #!/usr/bin/python
 from __future__ import print_function
-import sys,getopt,re
-import csv,re
-import argparse
+import re,argparse,itertools
 
 def main(args):
     filename=args.tsv
     regex=args.extended_regexp
-
     prog=re.compile(regex)
+
     with open(filename) as tsv:
         #find the appropriate columns in the header that match the regex
-        line=tsv.readline()
-        header=line.split("\t")
-        count=0
-        cols=[]
-        print(header[0], end='') 
-        for token in header:
-            if prog.search(token):
-                #add the column indices to a list for use later
-                cols.append(count)
-                print("\t",token, end='')
-            count+=1
-        print()
-        #in the rest of the line, find the matching rows and 
-        #print the columns that match the indices found above
-        while line!="":
-            line=tsv.readline()
+        header=tsv.readline().split("\t")
+        selector=[prog.search(h) for h in header]
+        #always print the first column
+        selector[0]=True
+        #print the header
+        print("\t".join(itertools.compress(header,selector)))
+
+
+        for line in tsv:
+            #skip blank lines
             if line.strip()=="":
                 continue
+            #if the first column matches, print the matching columns
             tokens=line.split()
             if prog.search(tokens[0]):
-                print(tokens[0], end='')
-                for col in cols:
-                    print("\t",tokens[col], end='')
-                print()
-        
-
-            
-
-
+                print("\t".join(itertools.compress(tokens,selector)))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Grep through a tsv to select rows AND columns that match a regular expression")
