@@ -9,7 +9,7 @@ def main(args):
 
     with open(filename) as tsv:
         #find the appropriate columns in the header that match the regex
-        header=tsv.readline().split("\t")
+        header=tsv.readline().rstrip().split("\t")
         selector=[prog.search(h) for h in header]
         #always print the first column
         selector[0]=True
